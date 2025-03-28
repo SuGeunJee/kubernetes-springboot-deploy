@@ -6,12 +6,6 @@
 1. [프로젝트 개요](#-프로젝트-개요)
 2. [기술 스택](#-기술-스택)
 4. [배포 프로세스](#-배포-프로세스)
-   - [Windows 개발 환경](#1-windows-개발-환경)
-   - [JAR 파일 생성](#2-jar-파일-생성)
-   - [MobaXterm으로 파일 전송](#3-mobaxterm으로-파일-전송)
-   - [Docker 이미지 생성](#4-docker-이미지-생성)
-   - [Docker Hub에 이미지 푸시](#5-docker-hub에-이미지-푸시)
-   - [Kubernetes 배포](#6-kubernetes-배포)
 5. [실행 결과](#-실행-결과)
 6. [노드포트와 로드밸런서 비교](#-노드포트와-로드밸런서-비교)
 7. [트러블슈팅](#-트러블슈팅)
@@ -23,7 +17,7 @@
 
 ### 개발 환경
 ![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
-![IntelliJ IDEA](https://img.shields.io/badge/IntelliJ_IDEA-000000?style=for-the-badge&logo=intellijidea&logoColor=white)
+![Spring Tool Suite](https://img.shields.io/badge/Spring_Tool_Suite-6DB33F?style=for-the-badge&logo=spring&logoColor=white)
 ![Gradle](https://img.shields.io/badge/Gradle-02303A?style=for-the-badge&logo=gradle&logoColor=white)
 
 ### 애플리케이션
@@ -113,7 +107,7 @@ docker push yourusername/springboot:1.0
 
 
 ### 9. Kubernetes 배포
-Minikube를 사용한 Kubernetes 배포:
+**Minikube를 사용한 Kubernetes 배포**
 
 ```bash
 # Minikube 시작
@@ -139,9 +133,9 @@ spec:
         app: spring-app
     spec:
       containers:
-      - name: spring-app
-        image: yourusername/springboot:1.0
-        command: ["java"]
+      - name: custom-app
+        image: sugeunjee/springboot:1.0
+        command: ["java"]  # ENTRYPOINT 재정의
         args: ["-jar", "app.jar"]
         ports:
         - containerPort: 8080
@@ -157,8 +151,8 @@ spec:
   ports:
   - protocol: TCP
     port: 9000         # 서비스 포트
-    targetPort: 8080   # 컨테이너 포트
-    nodePort: 30080    # 노드 포트 (30000-32767)
+    targetPort: 8080   # 컨테이너 포트 (애플리케이션이 다른 포트를 사용한다면 변경 필요)
+    nodePort: 30080  # 선택 사항: 30000-32767 사이에서 특정 노드 포트 지정 가능
 ```
 
 #### LoadBalancer 배포 YAML
@@ -178,9 +172,9 @@ spec:
         app: spring-app
     spec:
       containers:
-      - name: spring-app
-        image: yourusername/springboot:1.0
-        command: ["java"]
+      - name: custom-app
+        image: sugeunjee/springboot:1.0
+        command: ["java"]  # ENTRYPOINT 재정의
         args: ["-jar", "app.jar"]
         ports:
         - containerPort: 8080
@@ -195,8 +189,9 @@ spec:
     app: spring-app
   ports:
   - protocol: TCP
-    port: 80          # 외부 포트
-    targetPort: 8080  # 컨테이너 포트
+    port: 9000         # 서비스 포트
+    targetPort: 8080   # 컨테이너 포트 (애플리케이션이 다른 포트를 사용한다면 변경 필요)
+    nodePort: 30080  # 선택 사항: 30000-32767 사이에서 특정 노드 포트 지정 가능
 ```
 
 **Kubernetes에 배포**
@@ -224,37 +219,38 @@ kubectl get services
 
 ### NodePort 서비스
 - **특징**: 각 노드의 특정 포트에 서비스를 노출
-- **접근방식**: `http://NODE_IP:NODE_PORT`로 접근
 - **로드밸런싱**: 클라이언트가 특정 노드 IP로 접근하면 항상 같은 노드로만 요청이 전달됨
 - **결과**: 실험 결과 NodePort 타입으로는 실제 로드밸런싱이 제대로 동작하지 않음
 
 - NodePort로 생성
 <img width="670" alt="image (7)" src="https://github.com/user-attachments/assets/1f8f4361-7207-4119-b21d-8aa64e0b6d3f" />
+
 <br>
 
 - 포트 포워딩
 <img width="602" alt="image (8)" src="https://github.com/user-attachments/assets/363fb4e8-bb3d-4ab4-b10c-371ff623670c" />
+
 <br>
 
 - 로드 밸런싱 불가
 <img width="1274" alt="image (9)" src="https://github.com/user-attachments/assets/69edb12a-6274-46a2-957d-9f35457294ef" />
+
 <br>
 
 ### LoadBalancer 서비스
 - **특징**: 클라우드 제공업체의 로드밸런서를 사용해 서비스 노출
-- **접근방식**: 로드밸런서가 제공하는 단일 IP를 통해 접근
 - **로드밸런싱**: 로드밸런서가 백엔드 포드들에 트래픽을 분산
 - **결과**: 트래픽이 여러 포드에 골고루 분산되어 로드밸런싱이 효과적으로 작동
 
 - LoadBalancer로 생성
 <img width="691" alt="image (10)" src="https://github.com/user-attachments/assets/b34f9136-8351-4f72-9e84-5e6661553ed7" />
+
 <br>
 
 - 로드 밸런싱 성공
 <img width="1277" alt="image (11)" src="https://github.com/user-attachments/assets/e187d710-a77e-4017-ae5b-74344cfabce9" />
+
 <br>
-
-
 
 ## ❗ 트러블슈팅
 
