@@ -46,17 +46,18 @@
 - 기본적인 REST API 및 웹 페이지 제공
 
 ### 2. JAR 파일 생성
-STS를 사용해 Gradle로 실행 가능한 JAR 파일 생성:
+**STS를 사용해 Gradle로 실행 가능한 JAR 파일 생성**
 
 <img width="727" alt="image" src="https://github.com/user-attachments/assets/51db3c45-3b81-45b0-b19b-c01c63721289" />
 
 ### 3. MobaXterm으로 파일 전송
-Windows에서 생성된 JAR 파일을 Linux 서버로 전송:
+**Windows에서 생성된 JAR 파일을 Linux 서버로 전송**
 - MobaXterm을 이용해 SFTP 연결
+  
 <img width="382" alt="image" src="https://github.com/user-attachments/assets/9f6d837c-55fd-4d6d-b4e6-5c1c17334b42" />
 
 ### 4. Docker 이미지 생성
-Linux 서버에서 Dockerfile 생성 및 이미지 빌드:
+**Linux 서버에서 Dockerfile 생성 및 이미지 빌드**
 
 ```dockerfile
 # 실행 환경 기반 이미지 선택
@@ -75,25 +76,22 @@ ENV JAVA_OPTS="-Xms256m -Xmx512m -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
 ENTRYPOINT java $JAVA_OPTS -jar app.jar
 ```
 
-Docker 이미지 빌드:
+**Docker 이미지 빌드**
+
 ```bash
 docker build -t springboot:1.0 .
 ```
 
 <img width="594" alt="image" src="https://github.com/user-attachments/assets/673fdcab-59c6-4f04-8c7e-773433b08ad9" />
 
-
-### 5. Docker Hub에 이미지 푸시
-Docker Hub에 로그인하고 이미지 태그 설정 후 푸시:
-
-### Docker Hub 로그인
+### 5. Docker Hub 로그인
 ```bash
 docker login
 ```
 
 <img width="965" alt="image (3)" src="https://github.com/user-attachments/assets/be451068-0852-4283-bcd3-68f2b19cc5f3" />
 
-### 이미지 태그 설정
+### 6. 이미지 태그 설정
 ```
 docker tag springboot:1.0 yourusername/springboot:1.0
 ```
@@ -101,7 +99,7 @@ docker tag springboot:1.0 yourusername/springboot:1.0
 <img width="547" alt="image (4)" src="https://github.com/user-attachments/assets/37c97be2-8465-4f0d-a2f5-61e5f417b9db" />
 
 
-### 이미지 푸시
+### 7. 이미지 푸시
 ```
 docker push yourusername/springboot:1.0
 ```
@@ -109,12 +107,12 @@ docker push yourusername/springboot:1.0
 <img width="605" alt="image (5)" src="https://github.com/user-attachments/assets/75f08109-242f-4f13-8898-70a63d89f567" />
 
 
-# Docker Hub 확인
+### 8. Docker Hub 확인
 
 <img width="1280" alt="image (6)" src="https://github.com/user-attachments/assets/0da65c3c-1600-4992-a028-a679a5b58fb1" />
 
 
-### 6. Kubernetes 배포
+### 9. Kubernetes 배포
 Minikube를 사용한 Kubernetes 배포:
 
 ```bash
@@ -201,7 +199,8 @@ spec:
     targetPort: 8080  # 컨테이너 포트
 ```
 
-Kubernetes에 배포:
+**Kubernetes에 배포**
+
 ```bash
 # NodePort 배포
 kubectl apply -f spring-nodeport.yaml
@@ -221,15 +220,6 @@ kubectl get deployments
 kubectl get services
 ```
 
-서비스 접속:
-- NodePort: `http://MINIKUBE_IP:30080`
-- LoadBalancer: `http://EXTERNAL_IP`
-
-Minikube의 경우 LoadBalancer를 별도 명령으로 노출:
-```bash
-minikube service spring-app-service
-```
-
 ## 🔄 노드포트와 로드밸런서 비교
 
 ### NodePort 서비스
@@ -240,12 +230,15 @@ minikube service spring-app-service
 
 - NodePort로 생성
 <img width="670" alt="image (7)" src="https://github.com/user-attachments/assets/1f8f4361-7207-4119-b21d-8aa64e0b6d3f" />
+<br>
 
 - 포트 포워딩
 <img width="602" alt="image (8)" src="https://github.com/user-attachments/assets/363fb4e8-bb3d-4ab4-b10c-371ff623670c" />
+<br>
 
 - 로드 밸런싱 불가
 <img width="1274" alt="image (9)" src="https://github.com/user-attachments/assets/69edb12a-6274-46a2-957d-9f35457294ef" />
+<br>
 
 ### LoadBalancer 서비스
 - **특징**: 클라우드 제공업체의 로드밸런서를 사용해 서비스 노출
@@ -255,10 +248,11 @@ minikube service spring-app-service
 
 - LoadBalancer로 생성
 <img width="691" alt="image (10)" src="https://github.com/user-attachments/assets/b34f9136-8351-4f72-9e84-5e6661553ed7" />
+<br>
 
 - 로드 밸런싱 성공
 <img width="1277" alt="image (11)" src="https://github.com/user-attachments/assets/e187d710-a77e-4017-ae5b-74344cfabce9" />
-
+<br>
 
 
 
