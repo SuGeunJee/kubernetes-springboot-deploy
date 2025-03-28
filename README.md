@@ -1,4 +1,4 @@
-# kubernetes-springboot-deploy
+# ☸️ kubernetes-springboot-deploy
 
 > 쿠버네티스 환경에서 스프링부트 애플리케이션을 컨테이너화하여 배포하는 실습 프로젝트
 
@@ -220,17 +220,22 @@ kubectl get services
 - NodePort로 생성
 <img width="670" alt="image (7)" src="https://github.com/user-attachments/assets/1f8f4361-7207-4119-b21d-8aa64e0b6d3f" />
 
-<br><br>
+<br>
+
+- minikube ip 확인
+<img width="231" alt="image" src="https://github.com/user-attachments/assets/fb12aa10-a774-4bfb-bfd3-651e6c92c1e7" />
+
+<br>
 
 - 포트 포워딩
 <img width="602" alt="image (8)" src="https://github.com/user-attachments/assets/363fb4e8-bb3d-4ab4-b10c-371ff623670c" />
 
-<br><br>
+<br>
 
 - 로드 밸런싱 불가
 <img width="1274" alt="image (9)" src="https://github.com/user-attachments/assets/69edb12a-6274-46a2-957d-9f35457294ef" />
 
-<br><br>
+<br>
 
 ### LoadBalancer 서비스
 - **특징**: 클라우드 제공업체의 로드밸런서를 사용해 서비스 노출
@@ -240,12 +245,12 @@ kubectl get services
 - LoadBalancer로 생성
 <img width="691" alt="image (10)" src="https://github.com/user-attachments/assets/b34f9136-8351-4f72-9e84-5e6661553ed7" />
 
-<br><br>
+<br>
 
 - 로드 밸런싱 성공
 <img width="1277" alt="image (11)" src="https://github.com/user-attachments/assets/e187d710-a77e-4017-ae5b-74344cfabce9" />
 
-<br><br>
+<br>
 
 ## ❗ 트러블슈팅
 
@@ -263,7 +268,21 @@ kubectl get services
 ENTRYPOINT java $JAVA_OPTS -jar app.jar
 ```
 
-### 2. NodePort 로드밸런싱 문제
+### 2. Kubernetes 파드 시작 오류
+**문제**: 쿠버네티스 배포 후 파드가 Error 상태로 표시됨
+
+**원인**: 동일한 Docker 이미지 실행 오류가 Kubernetes 환경에서도 발생
+
+**해결**: YAML 파일에서 command와 args를 명시적으로 지정하여 ENTRYPOINT 재정의
+```yaml
+containers:
+- name: spring-app
+  image: yourusername/springboot:1.0
+  command: ["java"]
+  args: ["-jar", "app.jar"]
+```
+
+### 3. NodePort 로드밸런싱 문제
 **문제**: NodePort 서비스를 사용할 때 로드밸런싱이 제대로 동작하지 않음
 
 **원인**: NodePort는 외부 트래픽이 특정 노드를 거쳐 진입할 때 해당 노드에 있는 파드로만 라우팅됨
