@@ -1,17 +1,18 @@
-# kubernetes-springboot-example
+# kubernetes-springboot-deploy
 
-> 스프링부트 애플리케이션을 쿠버네티스에 배포하는 예제 프로젝트
+> 쿠버네티스 환경에서 스프링부트 애플리케이션을 컨테이너화하여 배포하는 실습 프로젝트
 
 ## 📑 목차
 1. [프로젝트 개요](#-프로젝트-개요)
 2. [기술 스택](#-기술-스택)
 4. [배포 프로세스](#-배포-프로세스)
 5. [실행 결과](#-실행-결과)
-6. [노드포트와 로드밸런서 비교](#-노드포트와-로드밸런서-비교)
+6. [NodePort와 LoadBalancer 비교](#-nodeport와-loadbalancer-비교)
 7. [트러블슈팅](#-트러블슈팅)
 
 ## 🎯 프로젝트 개요
-이 프로젝트는 Windows 환경에서 개발된 Spring Boot 애플리케이션을 Docker 이미지로 만들고, Kubernetes(Minikube)에 배포하는 전체 과정을 다룹니다. 특히 NodePort와 LoadBalancer 서비스 유형에 따른 로드밸런싱 동작의 차이를 확인할 수 있습니다.
+이 프로젝트는 Windows 환경에서 개발된 Spring Boot 애플리케이션을 Docker 이미지로 만들고, Kubernetes(Minikube)에 배포하는 전체 과정을 다룹니다. 
+특히 NodePort와 LoadBalancer 서비스 유형에 따른 로드밸런싱 동작의 차이를 확인할 수 있습니다.
 
 ## 🛠 기술 스택
 
@@ -85,7 +86,7 @@ $ docker login
 
 <img width="965" alt="image (3)" src="https://github.com/user-attachments/assets/be451068-0852-4283-bcd3-68f2b19cc5f3" />
 
-### 6. 이미지 태그 설정
+### 6. 이미지 Tag 설정
 ```
 $ docker tag springboot:1.0 yourusername/springboot:1.0
 ```
@@ -93,7 +94,7 @@ $ docker tag springboot:1.0 yourusername/springboot:1.0
 <img width="547" alt="image (4)" src="https://github.com/user-attachments/assets/37c97be2-8465-4f0d-a2f5-61e5f417b9db" />
 
 
-### 7. 이미지 푸시
+### 7. 이미지 PUSH
 ```
 $ docker push yourusername/springboot:1.0
 ```
@@ -133,8 +134,6 @@ spec:
       containers:
       - name: custom-app
         image: sugeunjee/springboot:1.0
-        command: ["java"]  # ENTRYPOINT 재정의
-        args: ["-jar", "app.jar"]
         ports:
         - containerPort: 8080
 ---
@@ -172,8 +171,6 @@ spec:
       containers:
       - name: custom-app
         image: sugeunjee/springboot:1.0
-        command: ["java"]  # ENTRYPOINT 재정의
-        args: ["-jar", "app.jar"]
         ports:
         - containerPort: 8080
 ---
@@ -213,7 +210,7 @@ kubectl get deployments
 kubectl get services
 ```
 
-## 🔄 노드포트와 로드밸런서 비교
+## 🔄 NodePort와 LoadBalancer 비교
 
 ### NodePort 서비스
 - **특징**: 각 노드의 특정 포트에 서비스를 노출
@@ -266,21 +263,7 @@ kubectl get services
 ENTRYPOINT java $JAVA_OPTS -jar app.jar
 ```
 
-### 2. Kubernetes 파드 시작 오류
-**문제**: 쿠버네티스 배포 후 파드가 Error 상태로 표시됨
-
-**원인**: 동일한 Docker 이미지 실행 오류가 Kubernetes 환경에서도 발생
-
-**해결**: YAML 파일에서 command와 args를 명시적으로 지정하여 ENTRYPOINT 재정의
-```yaml
-containers:
-- name: spring-app
-  image: yourusername/springboot:1.0
-  command: ["java"]
-  args: ["-jar", "app.jar"]
-```
-
-### 3. NodePort 로드밸런싱 문제
+### 2. NodePort 로드밸런싱 문제
 **문제**: NodePort 서비스를 사용할 때 로드밸런싱이 제대로 동작하지 않음
 
 **원인**: NodePort는 외부 트래픽이 특정 노드를 거쳐 진입할 때 해당 노드에 있는 파드로만 라우팅됨
