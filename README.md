@@ -54,7 +54,12 @@
 ### 4. Docker 이미지 생성
 **Linux 서버에서 Dockerfile 생성 및 이미지 빌드**
 
-```dockerfile
+<br>
+
+<details>
+<summary> Dockerfile </summary>
+    
+```
 # 실행 환경 기반 이미지 선택
 FROM eclipse-temurin:17-jre-alpine
 
@@ -70,6 +75,9 @@ ENV JAVA_OPTS="-Xms256m -Xmx512m -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
 # 애플리케이션 실행 명령
 ENTRYPOINT java $JAVA_OPTS -jar app.jar
 ```
+</details>
+
+<br>
 
 **Docker 이미지 빌드**
 
@@ -116,6 +124,12 @@ $ minikube start
 ```
 
 #### NodePort 배포 YAML
+
+<br>
+
+<details>
+<summary> NodePort YAML </summary>
+    
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -150,9 +164,19 @@ spec:
     port: 9000         # 서비스 포트
     targetPort: 8080   # 컨테이너 포트 (애플리케이션이 다른 포트를 사용한다면 변경 필요)
     nodePort: 30080  # 선택 사항: 30000-32767 사이에서 특정 노드 포트 지정 가능
+
 ```
+</details>
+
+<br>
 
 #### LoadBalancer 배포 YAML
+
+<br>
+
+<details>
+<summary> LoadBalancer YAML </summary>
+    
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -187,7 +211,11 @@ spec:
     port: 9000         # 서비스 포트
     targetPort: 8080   # 컨테이너 포트 (애플리케이션이 다른 포트를 사용한다면 변경 필요)
     nodePort: 30080  # 선택 사항: 30000-32767 사이에서 특정 노드 포트 지정 가능
+
 ```
+</details>
+
+<br>
 
 **Kubernetes에 배포**
 
@@ -269,18 +297,31 @@ ENTRYPOINT java $JAVA_OPTS -jar app.jar
 ```
 
 ### 2. Kubernetes 파드 시작 오류
-**문제**: 쿠버네티스 배포 후 파드가 Error 상태로 표시됨
+**문제**: 쿠버네티스 배포 후 파드가 Error 상태로 표시됨, 하지만 생성한 이미지를 docker run 시키게 되면 정상 실행 확인
 
-**원인**: 동일한 Docker 이미지 실행 오류가 Kubernetes 환경에서도 발생
+<img width="644" alt="image" src="https://github.com/user-attachments/assets/bade2d06-b222-4d39-be60-7f09b628c69d" />
 
-**해결**: YAML 파일에서 command와 args를 명시적으로 지정하여 ENTRYPOINT 재정의
-```yaml
-containers:
-- name: spring-app
-  image: yourusername/springboot:1.0
-  command: ["java"]
-  args: ["-jar", "app.jar"]
-```
+
+<img width="968" alt="image" src="https://github.com/user-attachments/assets/02e2f475-de35-4776-b6b1-10ec8745123b" />
+
+<br><br>
+
+**원인**: Docker Hub에 이미지를 PUSH 할 때, 기존 이미지를 삭제 하고 PUSH 했지만 minikube 내부에서는 이미 같은 이미지가 있기 때문에 새로운 이미지를 다운받아 오지 않음!!
+
+**해결**: minikube image를 삭제해주면 다시 Docker Hub에서 다운받을 것!!
+
+- minikube image 리스트 확인
+
+<img width="382" alt="image" src="https://github.com/user-attachments/assets/8bf0a0ba-5db8-494a-a31e-0e081000e715" />
+
+- minikube image 삭제
+
+<img width="511" alt="image" src="https://github.com/user-attachments/assets/83aad2ab-1477-4a47-ba6a-2ad764f97d2d" />
+
+- 쿠버네티스 실행, 정상 실행 확인!
+
+<img width="632" alt="image" src="https://github.com/user-attachments/assets/8fde513e-fbc7-46cd-a3f0-94cbfceed4cc" />
+
 
 ### 3. NodePort 로드밸런싱 문제
 **문제**: NodePort 서비스를 사용할 때 로드밸런싱이 제대로 동작하지 않음
